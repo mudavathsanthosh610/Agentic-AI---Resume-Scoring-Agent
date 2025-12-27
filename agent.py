@@ -44,9 +44,8 @@ Run example:
 
 """
 
-# ---------------------------
 # SECTION 0: Imports
-# ---------------------------
+
 import os
 import re
 import io
@@ -77,9 +76,9 @@ try:
 except Exception:
     fuzz = None
 
-# ---------------------------
+
 # SECTION 1: Logging & config
-# ---------------------------
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(message)s')
 logger = logging.getLogger('resume-parser-agent')
 
@@ -108,9 +107,9 @@ DEFAULT_FOLLOWUPS = [
     (24, "Closing the application process. Thank you.")
 ]
 
-# ---------------------------
+
 # SECTION 2: Google Sheets Helpers
-# ---------------------------
+
 SCOPES = [
     'https://www.googleapis.com/auth/spreadsheets',
     'https://www.googleapis.com/auth/drive'
@@ -155,9 +154,9 @@ class SheetsWrapper:
         values = [row.get(c, '') for c in sh.row_values(1)]
         sh.append_row(values)
 
-# ---------------------------
+
 # SECTION 3: Resume extraction utilities
-# ---------------------------
+
 
 def extract_text_from_pdf(path_or_bytes: bytes | str) -> str:
     """Extract text from PDF file path or bytes. If bytes provided, use io.BytesIO."""
@@ -201,9 +200,9 @@ def fetch_resume_text_from_url(url: str) -> str:
         logger.exception('Failed fetching resume url: %s', e)
         return ''
 
-# ---------------------------
+
 # SECTION 4: Candidate enrichment heuristics
-# ---------------------------
+
 
 EDUCATION_PATTERNS = {
     'btech': r"\bB\.?\s?Tech\b|Bachelor\s+of\s+Technology|BTech\b",
@@ -245,9 +244,9 @@ def estimate_experience_months(text: str) -> int:
     # fallback: look for internship durations 'intern for 6 months'
     return total
 
-# ---------------------------
+
 # SECTION 5: Scoring engine
-# ---------------------------
+
 
 DEFAULT_SCORING = {
     'education': {
@@ -319,9 +318,9 @@ def score_candidate(candidate: Dict, scoring_config: Dict = None) -> Dict:
     score_breakdown['total'] = total
     return score_breakdown
 
-# ---------------------------
+
 # SECTION 6: Notifier (SMTP simple)
-# ---------------------------
+
 
 def send_email_smtp(to_email: str, subject: str, body: str, from_email: str = FROM_EMAIL) -> bool:
     if not SMTP_USER or not SMTP_PASSWORD:
@@ -343,10 +342,8 @@ def send_email_smtp(to_email: str, subject: str, body: str, from_email: str = FR
         logger.exception('Failed to send email: %s', e)
         return False
 
-# ---------------------------
-# SECTION 7: Follow-up scheduler and workflow
-# ---------------------------
 
+# SECTION 7: Follow-up scheduler and workfloW
 scheduler = BackgroundScheduler()
 
 
@@ -371,9 +368,9 @@ def schedule_followups_for_candidate(candidate_row: Dict, start_date: Optional[d
         scheduler.add_job(make_job(candidate_email, f"Follow-up #{idx}", message), 'date', run_date=run_date, id=job_id)
         logger.info('Scheduled followup %s for %s at %s', idx, candidate_email, run_date)
 
-# ---------------------------
+
 # SECTION 8: End-to-end processing
-# ---------------------------
+
 
 def process_master_and_details(client_wrapper: SheetsWrapper, scoring_config: Dict = None, run_followups: bool = False):
     master_df = client_wrapper.read_master()
@@ -417,9 +414,9 @@ def process_master_and_details(client_wrapper: SheetsWrapper, scoring_config: Di
     client_wrapper.update_detail_from_df(updated_df)
     logger.info('Updated detail sheet with %d candidates', len(updated_df))
 
-# ---------------------------
+
 # SECTION 9: CLI and entrypoint
-# ---------------------------
+
 
 def main():
     parser = argparse.ArgumentParser(description='Resume Parser & Scoring Agent')
@@ -457,3 +454,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
