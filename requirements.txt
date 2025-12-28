@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+gspread
+google-auth
+pandas
+pdfminer.six
+python-docx
+apscheduler
+python-dotenv
+rapidfuzz
+requests
